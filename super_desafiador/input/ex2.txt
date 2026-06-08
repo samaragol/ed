@@ -1,0 +1,11 @@
+10
+aql RT 2 1 0
+clojure RT 2 5 0
+prolog RT 2 2 2
+kpp RT 3 3 2
+freesurfer RT 0 1 0
+psim RT 2 2 0
+pandas RT 3 5 5
+toolbox RT 3 3 6
+ansyselectronics RT 1 5 7
+qbasicandquickbasic RT 1 4 1
