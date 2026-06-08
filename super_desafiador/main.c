@@ -111,7 +111,6 @@ int main()
     {
         Prog *p;
 
-        printf("\nITERAÇÃO: %d\n", iteracao);
         //  adiciona programas na lista
         int size = queue_size(programas);
         for (int i = 0; i < size; i++)
@@ -121,19 +120,16 @@ int main()
             if (!strcmp(prog_get_tipo(p), "RT") && prog_get_iteracao(p) == iteracao)
             {
                 queue_add(rt, p);
-                printf("ADICIONOU EM RT: %s %d %d %d\n", prog_get_nome(p), prog_get_prioridade(p), prog_get_carga(p), prog_get_ultimo_uso(p));
                 adicionou = 1;
             }
             else if (!strcmp(prog_get_tipo(p), "SO") && prog_get_iteracao(p) == iteracao)
             {
                 heap_push(so, p);
-                printf("ADICIONOU EM SO: %s %d %d %d\n", prog_get_nome(p), prog_get_prioridade(p), prog_get_carga(p), prog_get_ultimo_uso(p));
                 adicionou = 1;
             }
             else if (!strcmp(prog_get_tipo(p), "USER") && prog_get_iteracao(p) == iteracao)
             {
                 heap_push(user, p);
-                printf("ADICIONOU EM USER: %s %d %d %d\n", prog_get_nome(p), prog_get_prioridade(p), prog_get_carga(p), prog_get_ultimo_uso(p));
                 adicionou = 1;
             }
             if (!adicionou)
@@ -142,21 +138,11 @@ int main()
             }
         }
 
-        if (heap_empty(so) && vez == 0)
-        {
-            vez = 1;
-        }
-        else if (heap_empty(user) && vez == 1)
-        {
-            vez = 0;
-        }
-
         if (!queue_is_empty(rt))
         {
             p = (Prog *)queue_remove(rt);
             prog_decrementa_carga(p);
             prog_set_ultimo_uso(p, iteracao);
-            printf("%s %d %d\n", prog_get_nome(p), prog_get_carga(p), prog_get_ultimo_uso(p));
             if (prog_get_carga(p) == 0)
             {
                 printf("%s %d\n", prog_get_nome(p), prog_get_ultimo_uso(p));
@@ -167,41 +153,77 @@ int main()
                 queue_add(rt, p);
             }
         }
-        else if (!heap_empty(so) && vez == 0)
+        else if (vez == 0)
         {
-            p = (Prog *)heap_pop(so);
-            prog_decrementa_carga(p);
-            prog_set_ultimo_uso(p, iteracao);
-            printf("%s %d %d\n", prog_get_nome(p), prog_get_carga(p), prog_get_ultimo_uso(p));
-            if (prog_get_carga(p) == 0)
+            // É vez de SO
+            if (!heap_empty(so))
             {
-                printf("%s %d\n", prog_get_nome(p), prog_get_ultimo_uso(p));
-                prog_destroy(p);
+                p = (Prog *)heap_pop(so);
+                prog_decrementa_carga(p);
+                prog_set_ultimo_uso(p, iteracao);
+                if (prog_get_carga(p) == 0)
+                {
+                    printf("%s %d\n", prog_get_nome(p), prog_get_ultimo_uso(p));
+                    prog_destroy(p);
+                }
+                else
+                {
+                    heap_push(so, p);
+                }
+                vez = 1;
             }
-            else
+            else if (!heap_empty(user))
             {
-                heap_push(so, p);
+                p = (Prog *)heap_pop(user);
+                prog_decrementa_carga(p);
+                prog_set_ultimo_uso(p, iteracao);
+                if (prog_get_carga(p) == 0)
+                {
+                    printf("%s %d\n", prog_get_nome(p), prog_get_ultimo_uso(p));
+                    prog_destroy(p);
+                }
+                else
+                {
+                    heap_push(user, p);
+                }
+                // vez continua 0
             }
-
-            vez = 1;
         }
-        else if (!heap_empty(user) && vez == 1)
+        else if (vez == 1)
         {
-            p = (Prog *)heap_pop(user);
-            prog_decrementa_carga(p);
-            prog_set_ultimo_uso(p, iteracao);
-            printf("%s %d %d\n", prog_get_nome(p), prog_get_carga(p), prog_get_ultimo_uso(p));
-            if (prog_get_carga(p) == 0)
+            // É vez de USER
+            if (!heap_empty(user))
             {
-                printf("%s %d\n", prog_get_nome(p), prog_get_ultimo_uso(p));
-                prog_destroy(p);
+                p = (Prog *)heap_pop(user);
+                prog_decrementa_carga(p);
+                prog_set_ultimo_uso(p, iteracao);
+                if (prog_get_carga(p) == 0)
+                {
+                    printf("%s %d\n", prog_get_nome(p), prog_get_ultimo_uso(p));
+                    prog_destroy(p);
+                }
+                else
+                {
+                    heap_push(user, p);
+                }
+                vez = 0;
             }
-            else
+            else if (!heap_empty(so))
             {
-                heap_push(user, p);
+                p = (Prog *)heap_pop(so);
+                prog_decrementa_carga(p);
+                prog_set_ultimo_uso(p, iteracao);
+                if (prog_get_carga(p) == 0)
+                {
+                    printf("%s %d\n", prog_get_nome(p), prog_get_ultimo_uso(p));
+                    prog_destroy(p);
+                }
+                else
+                {
+                    heap_push(so, p);
+                }
+                // vez continua 1
             }
-
-            vez = 0;
         }
 
         if (queue_is_empty(rt) && heap_empty(so) && heap_empty(user))
