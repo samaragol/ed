@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "node.h"
 #include "list.h"
 
 /**
@@ -125,7 +124,7 @@ void list_print_reverse(List *l, void (*print_fn)(data_type))
 {
     Node *atual;
     printf("[");
-    for (atual = l->last; atual->prev != NULL; atual = atual->prev)
+    for (atual = l->last; atual != NULL; atual = atual->prev)
     {
         print_fn(atual->value);
         if (atual->prev != NULL)
@@ -233,7 +232,7 @@ data_type list_pop_back(List *l)
         }
 
         l->last = removido->prev;
-        
+
         node_destroy(removido);
         l->size--;
 
@@ -260,18 +259,9 @@ List *list_reverse(List *l);
  */
 void list_clear(List *l)
 {
-    if (l->head == NULL)
+    while (l->size > 0)
     {
-        return;
-    }
-    else
-    {
-        int tam = 10;
-
-        for (int i = 0; i < tam; i++)
-        {
-            list_pop_front(l);
-        }
+        list_pop_front(l);
     }
 }
 
@@ -323,4 +313,89 @@ void list_destroy(List *l)
 {
     list_clear(l);
     free(l);
+}
+
+/**
+ * @brief Returns an iterator to the first node of the double linked list.
+ * @param l
+ * Pointer to the double linked list.
+ * @return ListIterator*
+ * Pointer to the iterator.
+ */
+ListIterator *list_front_iterator(List *l)
+{
+    ListIterator *it = (ListIterator *)calloc(1, sizeof(ListIterator));
+
+    it->current = l->head;
+    return it;
+}
+
+/**
+ * @brief Returns an iterator to the last node of the double linked list.
+ * @param l
+ * Pointer to the double linked list.
+ * @return ListIterator*
+ * Pointer to the iterator.
+ */
+ListIterator *list_back_iterator(List *l)
+{
+    ListIterator *it = (ListIterator *)calloc(1, sizeof(ListIterator));
+
+    it->current = l->last;
+    return it;
+}
+
+/**
+ * @brief Returns the data stored in the node and updates the iterator to point to the next node.
+ * @param it
+ * Pointer to the iterator.
+ * @return data_type*
+ * Pointer to the data stored in the current node.
+ */
+data_type *list_iterator_next(ListIterator *it)
+{
+    if (it->current == NULL)
+        return NULL;
+
+    data_type *value = &it->current->value;
+    it->current = it->current->next;
+    return value;
+}
+
+/**
+ * @brief Returns the data stored in the node and updates the iterator to point to the previous node.
+ * @param it
+ * Pointer to the iterator.
+ * @return data_type*
+ * Pointer to the data stored in the current node.
+ */
+data_type *list_iterator_previous(ListIterator *it)
+{
+    data_type *value = &it->current->value;
+    it->current = it->current->next;
+    return value;
+}
+
+/**
+ * @brief Returns true if the iterator is over.
+ * @param it
+ * Pointer to the iterator.
+ * @return 1 if the iterator is over, and 0 otherwise.
+ */
+int list_iterator_is_over(ListIterator *it)
+{
+    if (it->current == NULL)
+        return 1;
+
+    return 0;
+}
+
+/**
+ * @brief Free the memory allocated to the iterator.
+ * @param it
+ * Pointer to the iterator.
+ */
+void list_iterator_destroy(ListIterator *it)
+{
+    free(it);
 }

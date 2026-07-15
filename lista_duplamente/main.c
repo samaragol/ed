@@ -1,41 +1,45 @@
+
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include "stack.h"
+
+#include "list.h"
 
 int main()
 {
-    int n;
-    char opc[10];
+    int n, val;
 
-    Stack *s = stack_construct();
+    List *l = list_construct();
 
+    // fill the list by adding values to the end
     scanf("%d", &n);
 
     for (int i = 0; i < n; i++)
     {
-        scanf(" %s", opc);
-
-        if (!strcmp(opc, "PUSH"))
-        {
-            char *string = (char *)malloc(100 * sizeof(char));
-            scanf(" %s", string);
-            stack_push(s, string);
-        }
-        else if (!strcmp(opc, "POP"))
-        {
-            char *dado = (char *)stack_pop(s);
-            printf("%s\n", dado);
-            free(dado);
-        }
+        scanf("%d", &val);
+        list_push_back(l, val);
     }
 
-    int tam = stack_size(s);
-    for (int i = 0; i < tam; i++)
+    // uses the back iterator to double the values
+    ListIterator *it = list_back_iterator(l);
+
+    while (!list_iterator_is_over(it))
     {
-        free((char *)stack_pop(s));
+        data_type *data = list_iterator_previous(it);
+        (*data) *= 2;
     }
-    stack_destroy(s);
+
+    list_iterator_destroy(it);
+
+    // use the front iterator to print the values
+    it = list_front_iterator(l);
+
+    while (!list_iterator_is_over(it))
+    {
+        data_type *data = list_iterator_next(it);
+        printf("%d\n", *data);
+    }
+
+    // test the destroy function
+    list_destroy(l);
 
     return 0;
 }
